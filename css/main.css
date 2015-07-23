@@ -1,0 +1,96 @@
+@font-face {
+    font-family: Roboto;
+    src: url(fonts/Roboto/Roboto-Regular.ttf);
+}
+
+@font-face {
+    font-family: RobotoBold;
+    src: url(fonts/Roboto/Roboto-Bold.ttf);
+}
+
+body {
+    font-family: Roboto;
+}
+
+.vkAudioList {
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+.vkAudioList li {
+    padding: 20px;
+    margin: 5px 0px;
+    overflow: hidden;
+    border: 1px solid #41924b;
+    color: #41924b;
+}
+
+.vkAudioList .title, .vkAudioList .artist {
+    margin-top: 4px;
+    display: block;
+    overflow: hidden;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vkAudioList .artist {
+    margin-left: 10px;
+    margin-right: 10px;
+    max-width: 60%;
+    float: left;
+    font-family: RobotoBold;
+}
+
+.vkAudioList .time {
+    margin-top: 4px;
+    float: right;
+}
+
+.vkAudioList li.active {
+    background: #41924b;
+    color: white;
+}
+
+.vkAudioList .play, .vkAudioList .active .pause, .vkAudioList .active.paused .play {
+    display: block;
+    float: left;
+    cursor: pointer;
+}
+
+.vkAudioList .pause, .vkAudioList .active .play, .vkAudioList .active.paused .pause {
+    display: none;
+}
+
+.vkAudioList li i {
+    font-size: 25px;
+}
+
+.vkAudioList .progress {
+    display: none;
+    margin-top: 20px;
+    position: relative;
+    width: 85%;
+    height: 5px;
+}
+
+.vkAudioList .progress-value, .vkAudioList .progress-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+}
+
+.vkAudioList .active .progress {
+    display: block;
+    background-color: white;
+}
+
+.vkAudioList .active .progress-value {
+    background-color: #afeaaa;
+}
+
+.vkAudioList .active .progress-loading {
+    background-color: #87e293;
+}
