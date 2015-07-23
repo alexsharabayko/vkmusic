@@ -35,6 +35,10 @@
     });
 
     vkApp.directive('vkAudioList', function (vkAudioFactory, $sce) {
+        var helpMethods = {
+
+        };
+
         return {
             restrict: 'E',
             templateUrl: 'audioListTmpl.html',
@@ -62,70 +66,81 @@
     });
 
     vkApp.directive('player', function () {
-        var scope;
+        var currentAudio = null,
+            $currentProgress = null,
+            $currentLoading = null;
+
+        var helpMethods = {
+            resetCurrent: function () {
+                if (currentAudio && $currentProgress) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+
+                    $(currentAudio).off('timeupdate').off('progress');
+
+                    $currentProgress.removeAttr('style');
+                    $currentLoading.removeAttr('style');
+                }
+            },
+
+            setCurrentElements: function (element, audio) {
+                currentAudio = audio;
+                $currentLoading = element.find('.progress-loading');
+                $currentProgress = element.find('.progress-value');
+            },
+
+            setCurrentState: function (element) {
+                if (!currentAudio.src) {
+                    currentAudio.src = currentAudio.dataset.src;
+                }
+
+                currentAudio.play();
+                $(currentAudio).on('timeupdate', event.data, handlersMethods.updateTime).on('progress', event.data, handlersMethods.updateProgress);
+
+                element.addClass('active').siblings().filter('.active').removeClass('active paused');
+            }
+        };
 
         var handlersMethods = {
             playClick: function (event) {
                 var element = event.data.element,
                     audio = element.find('audio')[0];
 
-                if (audio === scope.currentAudio) {
-                    scope.currentAudio.play();
+                if (audio === currentAudio) {
+                    currentAudio.play();
                     element.removeClass('paused');
                     return;
                 }
 
-                if (scope.currentAudio && scope.$currentProgress) {
-                    scope.currentAudio.pause();
-                    scope.currentAudio.currentTime = 0;
-
-                    $(scope.currentAudio).off('timeupdate').off('progress');
-
-                    scope.$currentProgress.removeAttr('style');
-                    scope.$currentLoading.removeAttr('style');
-                }
-
-                if (!audio.src) {
-                    audio.src = audio.dataset.src;
-                }
-
-                audio.play();
-
-                scope.currentAudio = audio;
-                $(scope.currentAudio).on('timeupdate', event.data, handlersMethods.updateTime).on('progress', event.data, handlersMethods.updateProgress);
-
-                element.addClass('active').siblings().filter('.active').removeClass('active paused');
-
-                scope.$currentProgress = element.find('.progress-value');
-                scope.$currentLoading = element.find('.progress-loading');
+                helpMethods.resetCurrent();
+                helpMethods.setCurrentElements(element, audio);
+                helpMethods.setCurrentState(element);
             },
 
             pauseClick: function (event) {
-                scope.currentAudio.pause();
+                currentAudio.pause();
 
                 event.data.element.addClass('paused');
             },
 
-            updateTime: function (event) {
-                scope.$currentProgress.css('width', (this.currentTime / this.duration * 100) + '%');
+            updateTime: function () {
+                $currentProgress.css('width', (this.currentTime / this.duration * 100) + '%');
             },
 
-            updateProgress: function (event) {
-                //event.data.scope.$currentLoading.css('width', (this.buffered.end(0) / this.duration * 100) + '%')
+            updateProgress: function () {
+                for (var i = 0; i < this.buffered.length; i++) {
+                    $currentLoading.css('width', (this.buffered.end(0) / this.duration * 100) + '%');
+                }
             }
         };
 
         return {
             restrict: 'A',
 
-            link: function (sc) {
-                scope = sc;
-            },
-
             controller: function ($scope, $element) {
-                $element.on('click', '.play', { element: $element, scope: $scope }, handlersMethods.playClick);
+                $element.on('click', '.play', { element: $element }, handlersMethods.playClick);
 
-                $element.on('click', '.pause', { element: $element, scope: $scope }, handlersMethods.pauseClick);
+                $element.on('click', '.pause', { element: $element }, handlersMethods.pauseClick);
             }
         }
     });
