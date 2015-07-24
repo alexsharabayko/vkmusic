@@ -36,7 +36,13 @@
 
     vkApp.directive('vkAudioList', function (vkAudioFactory, $sce) {
         var helpMethods = {
+            toTimeString: function (duration) {
+                var hours = parseInt(duration / 3600) > 0 ? parseInt(duration / 3600) : '',
+                    minutes = parseInt(duration / 60) > 9 ? parseInt(duration / 60) : '0' + parseInt(duration / 60),
+                    seconds = duration % 60 > 9 ? duration % 60 : '0' + duration % 60;
 
+                return hours ? hours + ' : ' + minutes + ' : ' + seconds : minutes + ' : ' + seconds;
+            }
         };
 
         return {
@@ -46,16 +52,11 @@
             scope: {},
 
             link: function (scope, element) {
-                scope.currentAudio = null;
-                scope.$currentProgress = null;
-                scope.$currentLoading = null;
-
                 vkAudioFactory.getAudio().done(function (songs) {
                     scope.songs = songs.map(function (song) {
                         song.src = $sce.trustAsResourceUrl(song.url.replace(/\?.*/, ''));
 
-                        song.durationMinutes = parseInt(song.duration / 60, 10);
-                        song.durationSeconds = song.duration % 60;
+                        song.durationString = helpMethods.toTimeString(song.duration);
 
                         return song;
                     });
