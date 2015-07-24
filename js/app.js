@@ -66,10 +66,14 @@
         }
     });
 
+
+
+
     vkApp.directive('player', function () {
         var currentAudio = null,
             $currentProgress = null,
-            $currentLoading = null;
+            $currentLoading = null,
+            currentVolume = 1;
 
         var helpMethods = {
             resetCurrent: function () {
@@ -99,6 +103,12 @@
                 $(currentAudio).on('timeupdate', event.data, handlersMethods.updateTime).on('progress', event.data, handlersMethods.updateProgress);
 
                 element.addClass('active').siblings().filter('.active').removeClass('active paused');
+            },
+
+            setCurrentVolume: function (element) {
+                currentAudio.volume = currentVolume;
+
+                element.find('.volume-value').css('width', (currentVolume * 100) + '%')
             }
         };
 
@@ -115,6 +125,7 @@
 
                 helpMethods.resetCurrent();
                 helpMethods.setCurrentElements(element, audio);
+                helpMethods.setCurrentVolume(element);
                 helpMethods.setCurrentState(element);
             },
 
@@ -132,6 +143,19 @@
                 for (var i = 0; i < this.buffered.length; i++) {
                     $currentLoading.css('width', (this.buffered.end(0) / this.duration * 100) + '%');
                 }
+            },
+
+            progressClick: function (event) {
+                var startTime = (event.clientX - this.offsetLeft) / this.offsetWidth * currentAudio.duration;
+
+                currentAudio.currentTime = startTime;
+                currentAudio.play();
+            },
+
+            volumeClick: function (event) {
+                currentVolume = (event.clientX - this.offsetLeft) / this.offsetWidth;
+
+                helpMethods.setCurrentVolume(event.data.element);
             }
         };
 
@@ -142,6 +166,10 @@
                 $element.on('click', '.play', { element: $element }, handlersMethods.playClick);
 
                 $element.on('click', '.pause', { element: $element }, handlersMethods.pauseClick);
+
+                $element.on('click', '.progress', handlersMethods.progressClick);
+
+                $element.on('click', '.volume', { element: $element }, handlersMethods.volumeClick);
             }
         }
     });

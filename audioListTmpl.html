@@ -1,21 +1,32 @@
-<ul class="vkAudioList">
-    <li ng-repeat="song in songs" player>
-        <span class="play"><i class="fa fa-play"></i></span>
-        <span class="pause"><i class="fa fa-pause"></i></span>
+<div class="vkAudio">
+    <div class="search-wrapper">
+        <input type="text" class="search-criteria"/>
+        <button class="search-button"><i class="fa fa-search"></i></button>
+    </div>
 
-        <span class="artist" title="{{ song.artist }}">{{ song.artist }}</span>
+    <ul class="vkAudioList">
+        <li ng-repeat="song in songs" player>
+            <span class="play"><i class="fa fa-play"></i></span>
+            <span class="pause"><i class="fa fa-pause"></i></span>
+
+            <span class="artist" title="{{ song.artist }}">{{ song.artist }}</span>
 
         <span class="time">
             <span class="duration">{{ song.durationString }}</span>
         </span>
 
-        <span class="title" title="{{ song.title }}">{{ song.title }}</span>
+            <span class="title" title="{{ song.title }}">{{ song.title }}</span>
 
-        <audio data-src="{{ song.src }}"></audio>
+            <audio data-src="{{ song.src }}"></audio>
 
-        <div class="progress">
-            <div class="progress-loading"></div>
-            <div class="progress-value"></div>
-        </div>
-    </li>
-</ul>
+            <div class="volume">
+                <div class="volume-value"></div>
+            </div>
+
+            <div class="progress">
+                <div class="progress-loading"></div>
+                <div class="progress-value"></div>
+            </div>
+        </li>
+    </ul>
+</div>
