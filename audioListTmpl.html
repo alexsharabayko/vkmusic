@@ -1,19 +1,17 @@
 <div class="vkAudio">
-    <div class="search-wrapper">
+    <form class="search-wrapper">
         <input type="text" class="search-criteria"/>
         <button class="search-button"><i class="fa fa-search"></i></button>
-    </div>
+    </form>
 
     <ul class="vkAudioList">
-        <li ng-repeat="song in songs" player>
+        <li ng-repeat="song in songs" player data-owner_id="{{ song.owner_id }}" data-audio_id="{{ song.aid }}">
             <span class="play"><i class="fa fa-play"></i></span>
             <span class="pause"><i class="fa fa-pause"></i></span>
 
             <span class="artist" title="{{ song.artist }}">{{ song.artist }}</span>
 
-        <span class="time">
-            <span class="duration">{{ song.durationString }}</span>
-        </span>
+            <span class="time">{{ song.durationString }}</span>
 
             <span class="title" title="{{ song.title }}">{{ song.title }}</span>
 
@@ -26,6 +24,19 @@
             <div class="progress">
                 <div class="progress-loading"></div>
                 <div class="progress-value"></div>
+            </div>
+
+            <div class="add-actions">
+                <a class="download add-action" href="{{ song.src }}" download="{{ song.artist }} - {{ song.title }}"><i class="fa fa-file-audio-o"></i> Download</a>
+
+                <span class="loop add-action"><i class="fa fa-repeat"></i> Repeat</span>
+
+                <span class="remove-song add-action" ng-show="song.owner_id === user_id">
+                    <i class="fa fa-remove"></i> Remove song
+                </span>
+                <span class="add-song add-action" ng-show="song.owner_id !== user_id">
+                    <i class="fa fa-plus"></i> Add song
+                </span>
             </div>
         </li>
     </ul>

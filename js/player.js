@@ -1,78 +1,11 @@
 (function () {
-    var vkApp = angular.module('vk-app', ['ngSanitize']);
-
-    vkApp.factory('vkAudioFactory', function () {
-        var vk = {
-            appId: 4941221,
-            permissions: 'audio'
-        };
-
-        VK.init({apiId: vk.appId});
-
-        return {
-            login: function () {
-                var d = $.Deferred();
-
-                VK.Auth.login(function (response) {
-                    response.session ? d.resolve() : d.reject();
-                });
-
-                return d;
-            },
-
-            getAudio: function () {
-                var d = $.Deferred();
-
-                this.login().done(function () {
-                    VK.Api.call('audio.get', {}, function (data) {
-                        data.response ? d.resolve(data.response) : d.reject();
-                    });
-                });
-
-                return d;
-            }
-        }
-    });
-
-    vkApp.directive('vkAudioList', function (vkAudioFactory, $sce) {
-        var helpMethods = {
-            toTimeString: function (duration) {
-                var hours = parseInt(duration / 3600) > 0 ? parseInt(duration / 3600) : '',
-                    minutes = parseInt(duration / 60) > 9 ? parseInt(duration / 60) : '0' + parseInt(duration / 60),
-                    seconds = duration % 60 > 9 ? duration % 60 : '0' + duration % 60;
-
-                return hours ? hours + ' : ' + minutes + ' : ' + seconds : minutes + ' : ' + seconds;
-            }
-        };
-
-        return {
-            restrict: 'E',
-            templateUrl: 'audioListTmpl.html',
-            replace: true,
-            scope: {},
-
-            link: function (scope, element) {
-                vkAudioFactory.getAudio().done(function (songs) {
-                    scope.songs = songs.map(function (song) {
-                        song.src = $sce.trustAsResourceUrl(song.url.replace(/\?.*/, ''));
-
-                        song.durationString = helpMethods.toTimeString(song.duration);
-
-                        return song;
-                    });
-                    scope.$apply();
-                });
-            }
-        }
-    });
-
-
-
+    var vkApp = angular.module('vk-app');
 
     vkApp.directive('player', function () {
         var currentAudio = null,
             $currentProgress = null,
             $currentLoading = null,
+            $currentTime = null,
             currentVolume = 1;
 
         var helpMethods = {
@@ -92,6 +25,7 @@
                 currentAudio = audio;
                 $currentLoading = element.find('.progress-loading');
                 $currentProgress = element.find('.progress-value');
+                $currentTime = element.find('.time');
             },
 
             setCurrentState: function (element) {
@@ -100,7 +34,10 @@
                 }
 
                 currentAudio.play();
-                $(currentAudio).on('timeupdate', event.data, handlersMethods.updateTime).on('progress', event.data, handlersMethods.updateProgress);
+                $(currentAudio)
+                    .on('timeupdate', handlersMethods.updateTime)
+                    .on('progress', handlersMethods.updateProgress)
+                    .on('ended', { element: element }, handlersMethods.nextSong)
 
                 element.addClass('active').siblings().filter('.active').removeClass('active paused');
             },
@@ -137,6 +74,8 @@
 
             updateTime: function () {
                 $currentProgress.css('width', (this.currentTime / this.duration * 100) + '%');
+
+                $currentTime.html(globalHelpMethods.toTimeString(this.duration - this.currentTime));
             },
 
             updateProgress: function () {
@@ -156,6 +95,20 @@
                 currentVolume = (event.clientX - this.offsetLeft) / this.offsetWidth;
 
                 helpMethods.setCurrentVolume(event.data.element);
+            },
+
+            nextSong: function (event) {
+                var next = event.data.element.next().length ? event.data.element.next() : event.data.element.siblings().eq(0);
+                next.find('.play').trigger('click');
+            },
+
+            loopClick: function () {
+                currentAudio.loop = !currentAudio.loop;
+                $(this).toggleClass('active');
+            },
+
+            addRemoveSong: function (event) {
+                event.data.element.trigger('add-remove-action');
             }
         };
 
@@ -163,13 +116,17 @@
             restrict: 'A',
 
             controller: function ($scope, $element) {
-                $element.on('click', '.play', { element: $element }, handlersMethods.playClick);
+                $element.on('click', '.play', {element: $element}, handlersMethods.playClick);
 
-                $element.on('click', '.pause', { element: $element }, handlersMethods.pauseClick);
+                $element.on('click', '.pause', {element: $element}, handlersMethods.pauseClick);
 
                 $element.on('click', '.progress', handlersMethods.progressClick);
 
-                $element.on('click', '.volume', { element: $element }, handlersMethods.volumeClick);
+                $element.on('click', '.volume', {element: $element}, handlersMethods.volumeClick);
+
+                $element.on('click', '.loop', handlersMethods.loopClick);
+
+                $element.on('click', '.remove-song, .add-song', {element: $element}, handlersMethods.addRemoveSong);
             }
         }
     });

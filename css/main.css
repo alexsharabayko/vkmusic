@@ -46,7 +46,7 @@ body {
     outline: none;
 }
 
-.vkAudioList li {
+.vkAudioList > li {
     padding: 20px;
     margin: 5px 0px;
     overflow: hidden;
@@ -76,9 +76,10 @@ body {
     float: right;
 }
 
-.vkAudioList li.active {
+.vkAudioList > li.active {
     background: #41924b;
     color: white;
+    transition: all 0.4s;
 }
 
 .vkAudioList .play, .vkAudioList .active .pause, .vkAudioList .active.paused .play {
@@ -91,7 +92,7 @@ body {
     display: none;
 }
 
-.vkAudioList li i {
+.vkAudioList > li i {
     font-size: 25px;
 }
 
@@ -142,4 +143,35 @@ body {
 
 .vkAudioList .volume-value {
     background-color: #afeaaa;
+}
+
+.vkAudioList .add-actions {
+    display: none;
+    margin-top: 20px;
+}
+
+.vkAudioList .active:hover .add-actions {
+    display: block;
+}
+
+.vkAudioList .add-action {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.vkAudioList .add-action i {
+    font-size: 16px;
+}
+
+.vkAudioList .remove-song, .vkAudioList .add-song {
+    float: right;
+    margin-right: 0;
+}
+
+.vkAudioList .loop {
+    opacity: 0.5;
+}
+
+.vkAudioList .loop.active {
+    opacity: 1;
 }
